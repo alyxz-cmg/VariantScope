@@ -1,0 +1,1 @@
+"""Extract a 20-dimensional feature vector for a missense variant."""

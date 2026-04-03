@@ -1,0 +1,1 @@
+"""Streamlit demo for the Variant Impact Predictor."""

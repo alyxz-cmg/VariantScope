@@ -1,0 +1,1 @@
+"""Generate synthetic data, later real ClinVar data, for training."""
