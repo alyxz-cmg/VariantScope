@@ -84,3 +84,13 @@ def load_clinvar_tsv(filepath: str) -> pd.DataFrame:
     )
     logger.info(f"ClinVar loaded: {len(df_filt)} variants after filtering")
     return df_filt
+
+def prepare_xy(df: pd.DataFrame, cfg: Config) -> Tuple[np.ndarray, np.ndarray]:
+    """Extract feature matrix X and label vector y from dataframe."""
+    missing = [f for f in cfg.feature_names if f not in df.columns]
+    if missing:
+        raise ValueError(f"Missing features in dataframe: {missing}")
+
+    X = df[cfg.feature_names].values.astype(np.float32)
+    y = df["label"].values.astype(np.float32)
+    return X, y
