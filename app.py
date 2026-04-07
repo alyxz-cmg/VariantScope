@@ -99,3 +99,22 @@ with tab_predict:
 
         except ValueError as e:
             st.error(str(e))
+
+with tab_compare:
+    st.subheader("Test Set Performance")
+    comp_df = results["comparison"]
+    st.dataframe(comp_df.style.highlight_max(axis=0, color="#d4edda").format("{:.4f}"))
+
+    st.subheader("ROC Curves")
+    curves = get_roc_curves(models, X_test, y_test)
+    fig, ax = plt.subplots(figsize=(7, 5))
+    for mname, c in curves.items():
+        auc_val = comp_df.loc[mname, "roc_auc"]
+        ax.plot(c["fpr"], c["tpr"], label=f"{mname} (AUC={auc_val:.3f})", linewidth=2)
+    ax.plot([0, 1], [0, 1], "k--", alpha=0.4)
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.set_title("ROC Curve Comparison")
+    ax.legend()
+    plt.tight_layout()
+    st.pyplot(fig)
