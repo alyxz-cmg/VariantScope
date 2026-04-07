@@ -32,3 +32,15 @@ def evaluate_model(model: BaseModel, X: np.ndarray, y: np.ndarray) -> Dict[str, 
         "roc_auc": roc_auc_score(y, y_prob),
         "avg_precision": average_precision_score(y, y_prob),
     }
+
+def compare_models(
+    models: List[BaseModel], X: np.ndarray, y: np.ndarray
+) -> pd.DataFrame:
+    rows = []
+    for m in models:
+        metrics = evaluate_model(m, X, y)
+        metrics["model"] = m.name
+        rows.append(metrics)
+    df = pd.DataFrame(rows).set_index("model")
+    logger.info(f"Model comparison:\n{df.round(4).to_string()}")
+    return df
