@@ -11,6 +11,10 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
+import platform
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+
 logger = logging.getLogger(__name__)
 
 class BaseModel(ABC):
@@ -57,13 +61,16 @@ class LRModel(BaseModel):
 class XGBModel(BaseModel):
     def __init__(self, n_estimators=200, max_depth=6, lr=0.1, seed=42):
         from xgboost import XGBClassifier
+
+        n_jobs = 1 if platform.system() == "Darwin" else -1
+
         self.clf = XGBClassifier(
             n_estimators=n_estimators,
             max_depth=max_depth,
             learning_rate=lr,
             random_state=seed,
             eval_metric="logloss",
-            use_label_encoder=False,
+            n_jobs=n_jobs,
         )
 
     @property
