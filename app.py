@@ -134,3 +134,26 @@ with tab_compare:
         ax2.set_title("Global Feature Importance")
         plt.tight_layout()
         st.pyplot(fig2)
+
+with tab_explore:
+    st.subheader("Feature Distributions (Test Set)")
+
+    feat_to_plot = st.selectbox("Feature", cfg.feature_names, index=0)
+    fig3, ax3 = plt.subplots(figsize=(7, 4))
+    for label, color, name in [(0, "#4b8bff", "Benign"), (1, "#ff4b4b", "Pathogenic")]:
+        mask = y_test == label
+        ax3.hist(X_test[mask, cfg.feature_names.index(feat_to_plot)],
+                 bins=30, alpha=0.6, color=color, label=name)
+    ax3.set_xlabel(feat_to_plot)
+    ax3.set_ylabel("Count")
+    ax3.legend()
+    plt.tight_layout()
+    st.pyplot(fig3)
+
+    st.subheader("Feature Correlation (Test Set)")
+    corr_df = pd.DataFrame(X_test, columns=cfg.feature_names).corr()
+    fig4, ax4 = plt.subplots(figsize=(10, 8))
+    sns.heatmap(corr_df, annot=False, cmap="coolwarm", center=0, ax=ax4)
+    ax4.set_title("Feature Correlation Matrix")
+    plt.tight_layout()
+    st.pyplot(fig4)
