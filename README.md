@@ -21,5 +21,8 @@ pip install -r requirements.txt
 # 2. Run the full pipeline (trains + evaluates)
 python pipeline.py
 
-# 3. Run tests
+# 3. Launch the Streamlit demo
+streamlit run app.py
+
+# 4. Run tests
 pytest tests/ -v
