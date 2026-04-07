@@ -118,3 +118,19 @@ with tab_compare:
     ax.legend()
     plt.tight_layout()
     st.pyplot(fig)
+
+    st.subheader("Global Feature Importance (SHAP — XGBoost)")
+    xgb_shap = results["shap"].get("XGBoost")
+    if xgb_shap is not None:
+        mean_abs_shap = np.abs(xgb_shap).mean(axis=0)
+        imp_df = pd.DataFrame({
+            "feature": cfg.feature_names,
+            "mean_abs_shap": mean_abs_shap,
+        }).sort_values("mean_abs_shap", ascending=True)
+
+        fig2, ax2 = plt.subplots(figsize=(8, 6))
+        ax2.barh(imp_df["feature"], imp_df["mean_abs_shap"], color="#f0a500")
+        ax2.set_xlabel("Mean |SHAP Value|")
+        ax2.set_title("Global Feature Importance")
+        plt.tight_layout()
+        st.pyplot(fig2)
