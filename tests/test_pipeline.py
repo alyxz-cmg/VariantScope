@@ -8,6 +8,7 @@ from amino_acid_data import get_grantham, get_blosum62, get_aa_properties, VALID
 from feature_engineering import parse_variant, extract_features, extract_features_from_string
 from data_loader import generate_synthetic_dataset, prepare_xy
 from models import LRModel, XGBModel, NNModel
+from evaluation import evaluate_model
 
 
 class TestAminoAcidData:
@@ -104,3 +105,11 @@ class TestModels:
         m.fit(X_tr, y_tr, X_te, y_te)
         preds = m.predict(X_te)
         assert preds.shape == y_te.shape
+
+    def test_evaluate_model(self, small_data):
+        X_tr, y_tr, X_te, y_te = small_data
+        m = LRModel()
+        m.fit(X_tr, y_tr)
+        metrics = evaluate_model(m, X_te, y_te)
+        assert "accuracy" in metrics
+        assert 0.0 <= metrics["roc_auc"] <= 1.0
