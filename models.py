@@ -53,3 +53,38 @@ class LRModel(BaseModel):
 
     def predict_proba(self, X):
         return self.clf.predict_proba(self.scaler.transform(X))[:, 1]
+    
+class XGBModel(BaseModel):
+    def __init__(self, n_estimators=200, max_depth=6, lr=0.1, seed=42):
+        from xgboost import XGBClassifier
+        self.clf = XGBClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            learning_rate=lr,
+            random_state=seed,
+            eval_metric="logloss",
+            use_label_encoder=False,
+        )
+
+    @property
+    def name(self) -> str:
+        return "XGBoost"
+
+    def fit(self, X_train, y_train, X_val=None, y_val=None):
+        fit_params = {}
+        if X_val is not None and y_val is not None:
+            fit_params["eval_set"] = [(X_val, y_val)]
+            fit_params["verbose"] = False
+            
+        n_neg = np.sum(y_train == 0)
+        n_pos = np.sum(y_train == 1)
+        if n_pos > 0:
+            self.clf.set_params(scale_pos_weight=n_neg / n_pos)
+        self.clf.fit(X_train, y_train, **fit_params)
+        logger.info("XGBoost trained")
+
+    def predict(self, X):
+        return self.clf.predict(X)
+
+    def predict_proba(self, X):
+        return self.clf.predict_proba(X)[:, 1]
