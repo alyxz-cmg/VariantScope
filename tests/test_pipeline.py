@@ -7,6 +7,7 @@ from config import Config
 from amino_acid_data import get_grantham, get_blosum62, get_aa_properties, VALID_AAS
 from feature_engineering import parse_variant, extract_features, extract_features_from_string
 from data_loader import generate_synthetic_dataset, prepare_xy
+from models import LRModel, XGBModel, NNModel
 
 
 class TestAminoAcidData:
@@ -71,3 +72,35 @@ class TestDataLoader:
         assert X.shape == (50, 20)
         assert y.shape == (50,)
         assert set(np.unique(y)).issubset({0.0, 1.0})
+
+class TestModels:
+    @pytest.fixture
+    def small_data(self):
+        cfg = Config(n_synthetic_samples=200, random_seed=42)
+        df = generate_synthetic_dataset(cfg)
+        X, y = prepare_xy(df, cfg)
+        return X[:160], y[:160], X[160:], y[160:]
+
+    def test_lr_train_predict(self, small_data):
+        X_tr, y_tr, X_te, y_te = small_data
+        m = LRModel()
+        m.fit(X_tr, y_tr)
+        preds = m.predict(X_te)
+        assert preds.shape == y_te.shape
+        probs = m.predict_proba(X_te)
+        assert np.all((probs >= 0) & (probs <= 1))
+
+    def test_xgb_train_predict(self, small_data):
+        X_tr, y_tr, X_te, y_te = small_data
+        m = XGBModel(n_estimators=10, max_depth=3)
+        m.fit(X_tr, y_tr)
+        preds = m.predict(X_te)
+        assert preds.shape == y_te.shape
+
+    def test_nn_train_predict(self, small_data):
+        X_tr, y_tr, X_te, y_te = small_data
+        m = NNModel(input_dim=X_tr.shape[1], hidden_layers=[32, 16],
+                     epochs=5, batch_size=32)
+        m.fit(X_tr, y_tr, X_te, y_te)
+        preds = m.predict(X_te)
+        assert preds.shape == y_te.shape
