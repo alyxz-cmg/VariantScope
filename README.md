@@ -26,3 +26,17 @@ streamlit run app.py
 
 # 4. Run tests
 pytest tests/ -v
+```
+## Demo
+
+<p align="center">
+  <img src="assets/Home.png" width="700"/>
+  <br>
+  <em>Interactive Streamlit interface for variant prediction</em>
+</p>
+
+<p align="center">
+  <img src="assets/SHAP-Global.png" width="700"/>
+  <br>
+  <em>SHAP values highlighting key biological features</em>
+</p>
