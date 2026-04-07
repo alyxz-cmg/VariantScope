@@ -6,6 +6,8 @@ import pytest
 from config import Config
 from amino_acid_data import get_grantham, get_blosum62, get_aa_properties, VALID_AAS
 from feature_engineering import parse_variant, extract_features, extract_features_from_string
+from data_loader import generate_synthetic_dataset, prepare_xy
+
 
 class TestAminoAcidData:
     def test_grantham_symmetric(self):
@@ -54,3 +56,18 @@ class TestFeatureEngineering:
     def test_invalid_aa_raises(self):
         with pytest.raises(ValueError):
             extract_features("X", "Z")
+
+class TestDataLoader:
+    def test_synthetic_data_shape(self):
+        cfg = Config(n_synthetic_samples=100)
+        df = generate_synthetic_dataset(cfg)
+        assert len(df) == 100
+        assert "label" in df.columns
+
+    def test_prepare_xy(self):
+        cfg = Config(n_synthetic_samples=50)
+        df = generate_synthetic_dataset(cfg)
+        X, y = prepare_xy(df, cfg)
+        assert X.shape == (50, 20)
+        assert y.shape == (50,)
+        assert set(np.unique(y)).issubset({0.0, 1.0})
